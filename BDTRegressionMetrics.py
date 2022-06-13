@@ -33,6 +33,8 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error
+
 
 from array import array
 
@@ -172,9 +174,6 @@ for data in pd.read_csv('/hadrex1/storage2/rramos/stratrack/machinelearning/skyw
 	D_test = xgb.DMatrix(X_test, feature_names = orig_feature_names)
 	Y_pred = BDT.predict(D_test)
 
-	#data_out = np.concatenate((PID_test,IM_test,pT_test,Y_pred),1)
-	#np.savetxt('/hadrex1/storage2/rramos/stratrack/machinelearning/skywalker/data_test01/merge0'+str(merge)+'/res0'+str(num)+'/PID_IM_pT_MLpred_0.txt',data_out)
-
 	#Plot output distribution in Valid Set
 	N_Particles = Count_Particle(PID_test,MyPID1)
 	N_BG = PID_test.shape[0] - N_Particles
@@ -217,5 +216,30 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive rate')
 
 plt.legend(loc='best')
-plt.savefig('ROC',dpi=300)
-plt.show();			
+plt.savefig('/hadrex1/storage2/rramos/stratrack/machinelearning/skywalker/data_train02/merge01/lowpt/res03/ROC.pdf', format='pdf')
+
+#mean squared error
+
+errors = list()
+for i in range(len(Y_test)):
+	# calculate error
+	err = (Y_test[i] - Y_pred[i])**2
+	# store error
+	errors.append(err)
+# plot errors
+plt.plot(errors)
+plt.xticks(ticks=[i for i in range(len(errors))], labels=predicted)
+plt.xlabel('Predicted Value')
+plt.ylabel('Mean Squared Error')
+plt.savefig('/hadrex1/storage2/rramos/stratrack/machinelearning/skywalker/data_train02/merge01/lowpt/res03/RMS.pdf', format='pdf')
+
+# calculate errors
+errors_MSE = mean_squared_error(Y_test, Y_pred)
+# report error
+print('Mean Squared Error:')
+print(errors_MSE)
+
+# Root Mean Squared Error
+errors_RMSE = mean_squared_error(expected, predicted, squared=False)
+print('Root Mean Squared Error:')
+print(errors_RMSE)
